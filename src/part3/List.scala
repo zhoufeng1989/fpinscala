@@ -9,7 +9,6 @@ case class Cons[+A](head: A, tail: List[A]) extends List[A]
 object List {
 	
 	def apply[A](as: A*): List[A] = {
-    println(as)
 		if (as.isEmpty) Nil
 		else Cons(as.head, apply(as.tail: _*))
   }
@@ -84,6 +83,7 @@ is all about finding clever ways to exploit data sharing.
   def reverse[A](l: List[A]): List[A] = foldLeft(l, List[A]())((z, x) => Cons(x, z))
   
   def sum(l: List[Int]): Int = foldLeft(l, 0)(_ + _)
+  
   def product(l: List[Double]): Double = foldLeft(l, 1.0)(_ * _)
 
   def foldRight2[A, B](l: List[A], z: B)(f: (A, B) => B): B = 
@@ -103,4 +103,27 @@ is all about finding clever ways to exploit data sharing.
   
   def filter[A](l: List[A])(f: A => Boolean): List[A] = 
     foldLeft(l, List[A]())((z, a) => if(f(a)) Cons(a, z) else z)
+    
+  def flatMap[A, B](l: List[A])(f: A => List[B]): List[B] = 
+    foldLeft(l, List[B]())((z, a) => append(z, f(a)))
+     
+  def flatMap2[A, B](l: List[A])(f: A => List[B]): List[B] = 
+    foldRight(l, List[B]())((a, z) => append(f(a), z))
+  
+  def filterByflatMap[A](l: List[A])(f: A => Boolean) = flatMap(l)(a => if(f(a)) List(a) else Nil)
+  
+  def concat[A](lists: List[List[A]]):List[A] = foldRight(lists, List[A]())((a, z) => append(a, z))
+  
+  def zipWith[A, B, C](l1: List[A], l2: List[B])(f: (A, B) => C): List[C] = (l1, l2) match {
+    case (Cons(h1, t1), Cons(h2, t2)) => Cons(f(h1, h2), zipWith(t1, t2)(f))
+    case (Nil, _) => Nil
+    case (_, Nil) => Nil
+  }
+ 
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = (sup, sub) match {
+    case (Cons(h1, t1), Cons(h2, t2)) if (h1 == h2) => hasSubsequence(t1, t2)
+    case (Cons(h1, t1), Cons(h2, t2)) if (h1 != h2) => hasSubsequence(t1, sub)
+    case (_, Nil) => true
+    case (Nil, _) => false
+  }
 }
