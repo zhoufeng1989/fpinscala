@@ -51,4 +51,19 @@ forcing us to deal with errors, with a minimum of syntactic noise.
 
 
 
+###using option with exceptions###
+A common idiom is to do o.getOrElse(throw new Exception("FAIL")) to con-
+vert the None case of an Option back to an exception. The general rule of thumb is
+that we use exceptions only if no reasonable program would ever catch the exception;
+if for some callers the exception might be a recoverable error, we use Option (or
+Either) to give them flexibility.
+
+
+###Option composition, lifting, and wrapping exception-oriented APIs###
+It may be easy to jump to the conclusion that once we start using Option , it infects our
+entire code base. One can imagine how any callers of methods that take or return
+Option will have to be modified to handle either Some or None . But this doesn’t hap-
+pen, and the reason is that we can lift ordinary functions to become functions that
+operate on Option .
+
 
