@@ -59,4 +59,16 @@ object Option {
   
   def map2_1[A, B, C](a: Option[A], b: Option[B])(f: (A, B) => C): Option[C] = 
     a flatMap {x => (b map (y => f(x, y)))}
+  
+  def sequence[A](l: List[Option[A]]): Option[List[A]] =  l match {
+    case Nil => Some(Nil)
+    case x :: xs => x flatMap (xx => sequence(xs) map (xx :: _))
+  }
+  
+  def traverse[A, B](l: List[A])(f: A => Option[B]): Option[List[B]] = sequence(l map f)
+  
+  def traverse2[A, B](l: List[A])(f: A => Option[B]): Option[List[B]] = l match {
+    case Nil => Some(Nil)
+    case x :: xs => f(x) flatMap (xx => traverse2(xs)(f) map (xx :: _))
+  }
 }
