@@ -71,4 +71,10 @@ object Option {
     case Nil => Some(Nil)
     case x :: xs => f(x) flatMap (xx => traverse2(xs)(f) map (xx :: _))
   }
+  
+  def traverse3[A, B](l: List[A])(f: A => Option[B]): Option[List[B]] = 
+    l.foldRight[Option[List[B]]](Some(Nil))((x, z) => (f(x) flatMap (xx => (z map (xx :: _)))))
+    
+  def traverse4[A, B](l: List[A])(f: A => Option[B]): Option[List[B]] = 
+    l.foldRight[Option[List[B]]](Some(Nil))((x, z) => map2(f(x), z)(_ :: _))
 }
