@@ -31,6 +31,7 @@ until runtime.
 ###checked exception in java###
 Java’s checked exceptions at least force a decision about whether to handle or
 reraise an error, but they result in significant boilerplate for callers. More importantly,
+
 they don’t work for higher-order functions, which can’t possibly be aware of the spe-
 cific exceptions that could be raised by their arguments.
 This is why generic code, even in Java, so often resorts to using RuntimeException or some 
@@ -67,3 +68,18 @@ pen, and the reason is that we can lift ordinary functions to become functions t
 operate on Option .
 
 
+#Strict and non-strict functions#
+
+###strict and no-strict functions###
+Non-strictness is a property of a function. To say a function is non-strict just means
+that the function may choose not to evaluate one or more of its arguments. In con-
+trast, a strict function always evaluates its arguments. Strict functions are the norm in
+most programming languages, and indeed most languages only support functions
+that expect their arguments fully evaluated.
+
+As a final bit of terminology, we say that a non-strict function in Scala takes its argu-
+ments by name rather than by value.
+
+def x = 10
+def y() = 10
+val z = () => 10
