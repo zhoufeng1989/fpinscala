@@ -54,6 +54,46 @@ sealed trait Stream[+A] {
   
   def find(p: A => Boolean): Option[A] = this.filter(p).headOption
   
+  def map2[B](f: A => B): Stream[B] = Stream.unfold(this) {
+    case Cons(x, xs) => Some((f(x()), xs()))
+    case _ => None
+  }
+  
+  def take2(n: Int): Stream[A] = Stream.unfold((n, this)) {
+    case (n, Cons(x, xs)) if n > 1 => Some(x(), (n - 1, xs()))
+    case (1, Cons(x, xs))  => Some(x(), (0, Stream.empty))
+    case _ => None
+  }
+  
+  def takeWhile3(p: A => Boolean): Stream[A] = Stream.unfold(this) {
+    case Cons(x, xs) if p(x()) => Some((x(), xs()))
+    case _ => None
+  }
+  
+  def zipWith[B, C](s1: Stream[B])(f: (A, B) => C): Stream[C] = Stream.unfold((this, s1)) {
+    case (Cons(x1, xs1), Cons(x2, xs2)) => Some((f(x1(), x2()), (xs1(), xs2())))
+    case _ => None
+  }
+  
+  def zip[B](s1: Stream[B]): Stream[(A, B)] = zipWith(s1)((_, _))
+  def zipWithAll[B, C](s1: Stream[B])(f: (Option[A], Option[B]) => C): Stream[C] = Stream.unfold((this, s1)) {
+    case (Cons(x1, xs1), Cons(x2, xs2)) => Some((f(Some(x1()), Some(x2())), (xs1(), xs2())))
+    case (Cons(x1, xs1), Empty) => Some((f(Some(x1()), None), (xs1(), Stream.empty)))
+    case (Empty, Cons(x2, xs2)) => Some((f(None, Some(x2())), (Stream.empty, xs2())))
+    case (Empty, Empty) => Some((f(None, None), (Stream.empty, Stream.empty)))
+  }
+  
+  def zipAll[B](s1: Stream[B]): Stream[(Option[A], Option[B])] = zipWithAll(s1)((_, _))
+  
+  def startsWith[A](s: Stream[A]): Boolean = zipAll(s).takeWhile(!_._2.isEmpty) forAll {
+    case (x, y) => x == y
+  }
+  
+  def tails: Stream[Stream[A]] = Stream.unfold(this) {
+    case Cons(x, xs) => Some((this, xs()))
+    case _ => None
+  } append Stream(Stream.empty)
+  
 }
 
 case object Empty extends Stream[Nothing]
