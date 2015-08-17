@@ -3,5 +3,7 @@
 .project
 .settings
 .worksheet
+*.iml
 bin
 Test.scala
+.idea
