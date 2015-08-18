@@ -143,5 +143,7 @@ object RNG {
 
   object State {
     def unit[S, A](a: A): State[S, A] = State(s => (a, s))
+    def sequence[A](fs: List[State[S, A]]): State[S, List[A]] =
+      fs.foldRight(unit[S, List[A]](Nil))((a, z) => a.map2(z)(_ :: _))
   }
 }
