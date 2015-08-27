@@ -26,4 +26,7 @@ object Gen {
   def boolean: Gen[Boolean] =
     Gen(State(RNG.int).map{x => if(x > 0) true else false})
 
+  def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] =
+    Gen(State.sequence(List.fill(n)(g.sample)))
+
 }
