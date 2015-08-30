@@ -83,3 +83,12 @@ ments by name rather than by value.
 def x = 10
 def y() = 10
 val z = () => 10
+
+
+#algebras#
+considering data types in terms of their algebras—that is, the operations they support and the laws that gov-
+ern those operations.
+
+#monoid#
+
+a monoid is a type together with a binary operation ( op ) over that type, satisfying associativity and having an identity element ( zero )
