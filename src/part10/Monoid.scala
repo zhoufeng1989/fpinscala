@@ -68,5 +68,28 @@ object Monoid{
 
   def foldLeft[A, B](as: List[A])(z: B)(f: (B, A) => B): B =
     foldMap(as, dual(endoMonoid[B]))(a => b => f(b, a))(z)
+
+  def foldMapV[A, B](s: IndexedSeq[A], m: Monoid[B])(f: A => B): B = {
+    val length = s.length
+    if (length == 0) {
+      m.zero
+    }
+    else if (length == 1) {
+      f(s(0))
+    }
+    else {
+      val (l, r) = s.splitAt(length / 2)
+      m.op(foldMapV(l, m)(f), foldMapV(r, m)(f))
+    }
+  }
+
+  def ordered(s: IndexedSeq[Int]): Boolean = {
+    if (s.length <= 1)
+      true
+    else {
+      val l = s.toList
+      foldMap(l zip l.tail, booleanAnd)(a => a._1 < a._2)
+    }
+  }
 }
 
