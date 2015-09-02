@@ -119,5 +119,13 @@ object Monoid{
     }
   }
 
+  def productMonoid[A, B](a: Monoid[A], b: Monoid[B]): Monoid[(A, B)] = new Monoid[(A, B)] {
+    def op(x: (A, B), y: (A, B)): (A, B) = (a.op(x._1, y._1), b.op(x._2, y._2))
+    val zero = (a.zero, b.zero)
+  }
 
+  def functionMonoid[A, B](x: Monoid[B]): Monoid[A => B] = new Monoid[A => B] {
+    def op(f: A => B, g: A => B) = a => x.op(f(a), g(a))
+    val zero: A => B = a => x.zero
+  }
 }
