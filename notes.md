@@ -92,3 +92,29 @@ ern those operations.
 #monoid#
 
 a monoid is a type together with a binary operation ( op ) over that type, satisfying associativity and having an identity element ( zero )
+
+
+#functor#
+
+a functor should follow this law: mapping over a structure x with the identity function should itself be an identity.
+
+	```
+	map(x)(a => a) = x
+	```
+
+This law (and its corollaries given by parametricity) capture the requirement that map(x) “preserves the structure” of x . 
+Implementations satisfying this law are restricted from doing strange things like throwing exceptions, 
+removing the first element of a List , converting a Some to None , and so on. 
+Only the elements of the structure are modified by map ; the shape or structure itself is left intact.
+
+
+
+#momad#
+
+A monad is an implementation of one of the minimal sets of monadic combinators, satisfying the laws of associativity and identity.
+
+There are three minimal sets of primitive Monad combinators, and instances of Monad will have to provide implementations of one of these sets:
+
+1) unit and flatMap
+2) unit and compose
+3) unit , map , and join
