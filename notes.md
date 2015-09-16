@@ -118,3 +118,47 @@ There are three minimal sets of primitive Monad combinators, and instances of Mo
 1) unit and flatMap
 2) unit and compose
 3) unit , map , and join
+
+##applicative###
+
+all monads are applicative.
+
+minimal sets of applicative:
+
+unit and map2
+
+
+##difference between monad and applicative##
+
+1) Applicative computations have fixed structure and simply sequence effects,
+whereas monadic computations may choose structure dynamically, based on
+the result of previous effects.
+
+2) Applicative constructs context-free computations, while Monad allows for context
+sensitivity.
+
+3) Monad makes effects first class; they may be generated at “interpretation” time,
+rather than chosen ahead of time by the program.
+
+
+##The advantages of applicative functors##
+
+1) In general, it’s preferable to implement combinators like traverse using as few
+assumptions as possible. It’s better to assume that a data type can provide map2
+than flatMap . Otherwise we’d have to write a new traverse every time we
+encountered a type that’s Applicative but not a Monad ! We’ll look at examples
+of such types next.
+
+2) Because Applicative is “weaker” than Monad , this gives the interpreter of applica-
+tive effects more flexibility. To take just one example, consider parsing. If we
+describe a parser without resorting to flatMap , this implies that the structure of
+our grammar is determined before we begin parsing. Therefore, our inter-
+preter or runner of parsers has more information about what it’ll be doing up
+front and is free to make additional assumptions and possibly use a more effi-
+cient implementation strategy for running the parser, based on this known
+structure. Adding flatMap is powerful, but it means we’re generating our pars-
+ers dynamically, so the interpreter may be more limited in what it can do. Power
+comes at a cost. See the chapter notes for more discussion of this issue.
+
+3) Applicative functors compose, whereas monads (in general) don’t. We’ll see
+how this works later.
