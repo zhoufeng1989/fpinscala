@@ -33,3 +33,15 @@ trait Applicative[F[_]] extends Functor[F] {
     apply(apply(apply(unit(f.curried))(fa))(fb))(fc)
 
 }
+
+object Applicative {
+  val streamApplicative = new Applicative[Stream] {
+    def unit[A](a: => A): Stream[A] = Stream.continually(a)
+
+    override def map2[A, B, C](a: Stream[A], b: Stream[B])(f: (A, B) => C): Stream[C] =
+      a zip b map f.tupled
+
+    override def sequence[A](a: List[Stream[A]]): Stream[List[A]] =
+      a.foldRight(unit(List[A]()))((a, z) => map2(a, z)(_ :: _))
+  }
+}
