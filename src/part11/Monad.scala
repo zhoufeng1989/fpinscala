@@ -57,6 +57,16 @@ object Monad {
     def unit[A](a: => A) = Id(a)
     def flatMap[A, B](ma: Id[A])(f: A => Id[B]): Id[B] = ma flatMap f
   }
+
+  def eitherMonad[E]: Monad[({type f[x] = Either[E, x]})#f] =
+    new Monad[({type f[x] = Either[E, x]})#f] {
+      def unit[A](a: => A): Either[E, A] = Right(a)
+      def flatMap[A, B](ma: Either[E, A])(f: A => Either[E, B]): Either[E, B] = ma match {
+        case Left(a) => Left(a)
+        case Right(a) => f(a)
+      }
+    }
+
 }
 
 case class Id[A](value: A) {
