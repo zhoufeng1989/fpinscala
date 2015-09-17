@@ -62,8 +62,16 @@ object Applicative {
   def product[F[_], G[_]](f: Applicative[F], g: Applicative[G]): Applicative[({type f[x] = (F[x], G[x])})#f] = {
     new Applicative[({type f[x] = (F[x], G[x])})#f] {
       def unit[A](a: => A): (F[A], G[A]) = (f.unit(a), g.unit(a))
-      def map2[A, B, C](fa: (F[A], G[A]), fb: (F[B], G[B]))(h: (A, B) => C): (F[C], G[C]) =
-        (f.map2(fa._1, fb._1)(f), g.map2(fa._2, fb._2)(h))
+      override def map2[A, B, C](fa: (F[A], G[A]), fb: (F[B], G[B]))(h: (A, B) => C): (F[C], G[C]) =
+        (f.map2(fa._1, fb._1)(h), g.map2(fa._2, fb._2)(h))
+    }
+  }
+
+  def compose[F[_], G[_]](f: Applicative[F], g: Applicative[G]): Applicative[({type f[x] = F[G[x]]})#f] = {
+    new Applicative[({type f[x] = F[G[x]]})#f] {
+      def unit[A](a: => A): F[G[A]] = f.unit(g.unit(a))
+      override def map2[A, B, C](fa: F[G[A]], fb: F[G[B]])(h: (A, B) => C): F[G[C]] =
+        f.map2(fa, fb)(g.map2(_, _)(h))
     }
   }
 }
