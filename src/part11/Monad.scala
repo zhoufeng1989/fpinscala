@@ -66,7 +66,6 @@ object Monad {
         case Right(a) => f(a)
       }
     }
-
 }
 
 case class Id[A](value: A) {
