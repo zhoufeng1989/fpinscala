@@ -32,6 +32,9 @@ trait Applicative[F[_]] extends Functor[F] {
   def map3[A, B, C, D](fa: F[A], fb: F[B], fc: F[C])(f: (A, B, C) => D): F[D] =
     apply(apply(apply(unit(f.curried))(fa))(fb))(fc)
 
+  def sequenceMap[K, V](fa: Map[K, F[V]]): F[Map[K, V]] =
+    fa.foldRight(unit(Map[K, V]()))((a, z) => map2(a._2, z)((x, y) => Map((a._1, x)) ++ y))
+
 
 }
 
