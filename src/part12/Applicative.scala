@@ -87,4 +87,33 @@ case class Failure[E](head: E, tail: Vector[E]=Vector()) extends Validation[E, N
 case class Success[A](a: A) extends Validation[Nothing, A]
 
 
+trait Traverse[F[_]] extends Functor[F]{
+  def traverse[G[_]: Applicative, A, B](fa: F[A])(f: A => G[B]): G[F[B]] =
+    sequence(map(fa)(f))
 
+  def sequence[G[_]: Applicative, A](fga: F[G[A]]): G[F[A]] =
+    traverse(fga)(ga => ga)
+}
+
+case class Tree[+A](head: A, tail: List[Tree[A]])
+
+object Traverse {
+  val listTraverse = new Traverse[List] {
+    override def traverse[M[_], A, B](as: List[A])(f: A => M[B])(implicit m: Applicative[M]): M[List[B]] =
+      as.foldRight(m.unit(List[B]()))((a, z) => m.map2(f(a), z)(_ :: _))
+  }
+
+  val optionTraverse = new Traverse[Option] {
+    override def traverse[M[_], A, B](oa: Option[A])(f: A => M[B])(implicit m: Applicative[M]): M[Option[B]] = oa match {
+      case Some(a) => m.map(f(a))(Some(_))
+      case None => m.unit(None)
+    }
+  }
+
+  val treeTraverse = new Traverse[Tree] {
+    override def traverse[M[_], A, B](ot: Tree[A])(f: A => M[B])(implicit m: Applicative[M]): M[Tree[B]] =
+      m.map2(f(ot.head), listTraverse.traverse(ot.tail)(a => traverse(a)(f)))(Tree(_, _))
+  }
+
+
+}
